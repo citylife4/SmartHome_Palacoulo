@@ -12,9 +12,9 @@ IPWAITTIME = 10
 
 
 # create the connection and check if something is getting through
-class ServerThread(Thread):
+class ServerConnection(Thread):
     def __init__(self, host='', port=45321):
-        super(ServerThread, self).__init__()
+        super(ServerConnection, self).__init__()
 
         self.address = (host, port)
         self.listening_socket = None
@@ -47,17 +47,20 @@ class ServerThread(Thread):
 
 
 class ClientThread(Thread):
-    def __init__(self, host="jdvalverde.dynip.sapo.pt", port=4662):
+    def __init__(self, host="dvporto.dynip.sapo.pt", port=4662):
         super(ClientThread, self).__init__()
         self.packet_id = "ip"
         self.check_connection = "ch_palacoulo"
         self.my_address = ""
         self.sender_server = (host, port)
         self.connection_issues = 1
+        self.send_ip = 0
 
     def send_to_host(self, message):
         while True:
             try:
+                logging.debug("Connected to %s on port %s " % self.sender_server)
+
                 sender_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sender_sock.connect(self.sender_server)
                 logging.debug("Connected to %s on port %s " % self.sender_server)
@@ -83,14 +86,15 @@ class ClientThread(Thread):
 
     def run(self):
         logging.info("Starting " + self.name)
-        while 1:
-            new_address = get('https://ipapi.co/ip/').text
-            self.send_to_host(self.check_connection)
-            logging.debug("my address {}".format(self.my_address))
-            logging.debug("new address {}".format(new_address))
-            if self.my_address not in new_address or self.connection_issues:
-                self.connection_issues = 0
-                self.my_address = new_address
-                to_send = "{}_{}".format(self.packet_id, new_address)
-                self.send_to_host(to_send)
-            time.sleep(IPWAITTIME)
+        if self.send_ip:
+            while 1:
+                new_address = get('https://ipapi.co/ip/').text
+                self.send_to_host(self.check_connection)
+                logging.debug("my address {}".format(self.my_address))
+                logging.debug("new address {}".format(new_address))
+                if self.my_address not in new_address or self.connection_issues:
+                    self.connection_issues = 0
+                    self.my_address = new_address
+                    to_send = "{}_{}".format(self.packet_id, new_address)
+                    self.send_to_host(to_send)
+                time.sleep(IPWAITTIME)

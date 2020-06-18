@@ -16,7 +16,7 @@ def h_webserver_trigger_ip(data, self):
 def h_arduino_door_belt():
     # TODO
     pass
-
+ 
 
 handlers = {
     "tr": h_webserver_trigger_ip,
