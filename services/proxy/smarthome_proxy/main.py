@@ -4,9 +4,9 @@ import datetime
 import logging
 import time
 
-from HouseholdConnection import HouseholdConnection
-from ServerConnection import ServerConnection
-from ServerConnection import ClientThread
+from .ArduinoConnection import HouseholdConnection
+from .ServerConnection import ServerConnection
+from .ServerConnection import ClientThread
 
 exitFlag    = 0
 
@@ -14,7 +14,7 @@ exitFlag    = 0
 def main():
     # Configure logger!
     now = datetime.datetime.now()
-    logging.basicConfig(level=logging.DEBUG, filename="/home/jdv/logfiles/logfile_" + now.strftime("%Y_%m_%d") + ".log",
+    logging.basicConfig(level=logging.DEBUG, filename="logfile_" + now.strftime("%Y_%m_%d") + ".log",
                         filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(threadName)-9s) %(message)s")
     stderrLogger = logging.StreamHandler()

@@ -6,7 +6,7 @@ from threading import Thread
 
 from requests import get
 
-from connection_protocol import parser
+from .connection_protocol import parser
 
 IPWAITTIME = 10
 

@@ -1,3 +1,3 @@
-from smarthome_proxy import main
+from proxy.smarthome_proxy import main
 
-main()
+main.main()
