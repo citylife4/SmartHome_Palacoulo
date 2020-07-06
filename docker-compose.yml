@@ -26,7 +26,9 @@ services:
     proxy:
         build:
           context: ./services/proxy
-        command: python smarthome_proxy_connect.py
+        command: python smarthome_proxy.py
+        volumes:
+          - ./services/proxy/:/usr/src/app/
         #volumes:
         #  - static_volume:/home/app/web/web_app/static
         #  - media_volume:/home/app/web/web_app/media
