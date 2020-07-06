@@ -9,11 +9,11 @@ from enum import Enum
 class CommandType(Enum):
     """ Received Command """
 
-    SET       = 1
-    GET       = 2
-    CONFIG    = 3
-    MEM_DEBUG = 4
-    Unknown   = 0
+    SET       = 0
+    GET       = 1
+    CONFIG    = 2
+    MEM_DEBUG = 3
+    Unknown   = -1
 
 class HouseholdConnection(Thread):
     def __init__(self):
