@@ -1,3 +1,4 @@
-from smarthome_proxy import main
+from smarthome_proxy import SmartHomeProxy
 
-main.main()
+proxy = SmartHomeProxy.SmartHomeProxy()
+proxy.run()

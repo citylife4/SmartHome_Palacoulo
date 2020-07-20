@@ -6,14 +6,16 @@ import socket
 from threading import Thread
 from enum import Enum
 
+import smarthome_proxy.config as config
+
 class CommandType(Enum):
     """ Received Command """
 
-    SET       = 1
-    GET       = 2
-    CONFIG    = 3
-    MEM_DEBUG = 4
-    Unknown   = 0
+    SET       = 0
+    GET       = 1
+    CONFIG    = 2
+    MEM_DEBUG = 3
+    Unknown   = -1
 
 class HouseholdConnection(Thread):
     def __init__(self):
@@ -38,15 +40,23 @@ class HouseholdConnection(Thread):
 
     def run(self):
         logging.info("Starting Arduino Connection")
-        while 1:
+        while True:
             serial.time.sleep(0.01)
             while self.arduino_ser.in_waiting:
-                self.decode(self.arduino_ser.readline().decode("utf-8"))
+                data = self.arduino_ser.readline().decode("utf-8")
+                try:
+                    self.decode(data)
+                    if len(config.HOUSEHOLDE_QUEUE)>0:
+                        pkg = config.HOUSEHOLDE_QUEUE.pop()
+                        self.write(pkg)
+                    pass
+                except Exception as e:
+                    print ('HouseHoulde: ', e)
 
     def write(self,message):
         self.arduino_ser.write(message)
 
-    def send_message(message):
+    def send_message(self, message):
         print(message)
 
     def set(self, value):
@@ -74,10 +84,15 @@ class HouseholdConnection(Thread):
         #gpios = {
         #    "13": self.h_door_state,
         #}
-        data_list = list(filter(None, data.rstrip().split('_')))
-        data_list = [int(i) for i in data_list]
-        json = self.create_decoded_json(data_list)
-        print(json)
+        try:
+            data_list = list(filter(None, data.rstrip().split('_')))
+            data_list = [int(i) for i in data_list]
+            json = self.create_decoded_json(data_list)
+            print(json)
+            config.SERVER_QUEUE.append(json)
+            print(config.SERVER_QUEUE)
+        except Exception as e:
+            print(e)
         #Todo Change this a suttlibe function
         #if not data_list[1]:
         #    if data_list[3] == 13:

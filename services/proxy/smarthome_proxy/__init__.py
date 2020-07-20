@@ -1,0 +1,1 @@
+from smarthome_proxy import SmartHomeProxy
