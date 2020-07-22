@@ -24,3 +24,4 @@ if FOR_RASP:
 else:
     interface = 'eth0'
     
+DOCKER = os.environ.get('DOCKER') or 0

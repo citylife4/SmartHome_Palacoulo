@@ -1,10 +1,16 @@
+import os
 import logging
 import serial
 import serial.tools.list_ports
 import warnings
 import socket
+import json
 from threading import Thread
 from enum import Enum
+
+from datetime import datetime
+
+
 
 import smarthome_proxy.config as config
 
@@ -62,21 +68,38 @@ class HouseholdConnection(Thread):
     def set(self, value):
         self.pong = value
 
-    def create_decoded_json(self, data_list):
+    def create_decoded_json(self, data_list, print_json=True):
         """ Should datalist be already parsed? """
 
         print(data_list)
+        now = datetime.now()
+        current_time = now.strftime("%d/%m/%Y %H:%M:%S")
+
         #TODO error detection
         decoded_json = {
+            "data" : current_time,
             "from" : data_list[0],
             "to" : data_list[1],
-            "command" : CommandType(data_list[2]),
+            "command" : CommandType(data_list[2]).name,
             "GPIO" : data_list[3],
-            #"available" : data_list[4],
             "value" : data_list[4]
         }
 
+        if print_json ==True :
+            self.write_json(decoded_json)
+
         return decoded_json
+
+    def write_json(self, data, filename=config.basedir+'/../json_data/data.json'): 
+        with open(filename) as f: 
+            try:
+                json_file = json.load(f)
+            except Exception as e:
+                print("Exception: ", e)
+                json_file = { 'GPIOS' : []}
+            json_file['GPIOS'].append(data)
+        with open(filename, 'w') as f: 
+            json.dump(json_file, f) 
 
     #from_to_command_gpio_value
     def decode(self, data):
@@ -88,24 +111,9 @@ class HouseholdConnection(Thread):
             data_list = list(filter(None, data.rstrip().split('_')))
             data_list = [int(i) for i in data_list]
             json = self.create_decoded_json(data_list)
-            print(json)
             config.SERVER_QUEUE.append(json)
-            print(config.SERVER_QUEUE)
         except Exception as e:
             print(e)
-        #Todo Change this a suttlibe function
-        #if not data_list[1]:
-        #    if data_list[3] == 13:
-        #        if data_list[2]:
-        #            message = "st_"+str(data_list[4])
-        #            logging.debug("Sending {}".format(message))
-        #            try: 
-        #                self.sender_server = ("EXAMPLE", 4662)
-        #                sender_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #                sender_sock.connect(self.sender_server)
-        #                logging.debug("Connected to %s on port %s " % self.sender_server)
-        #                sender_sock.sendall(str(message).encode('utf-8'))
-        #            except ConnectionRefusedError:
-        #                logging.debug("conection failed")
-                        
+
+
 

@@ -9,10 +9,10 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install system dependencies
-RUN apk update && \
-    apk add --virtual build-deps gcc musl-dev && \
-    apk add postgresql-dev && \
-   apk add --no-cache libffi-dev openssl-dev
+#RUN apk update && \
+#    apk add --virtual build-deps gcc musl-dev && \
+#    apk add postgresql-dev && \
+#    apk add --no-cache libffi-dev openssl-dev
 
 # install dependencies
 RUN pip install --upgrade pip
