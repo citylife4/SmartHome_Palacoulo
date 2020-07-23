@@ -51,10 +51,7 @@ class SmartHomeProxy():
 
         self.housoldconnection.write("<0_1_1_13_0>".encode())
         time.sleep(5)
-        #housoldconnection.write("<0_1_1_9_0>".encode())
-        #housoldconnection.write("<0_1_1_8_1>".encode())
-        #time.sleep(5)
-        #housoldconnection.write("<0_1_1_8_0>".encode())
+
 
     def run(self):
         while True:

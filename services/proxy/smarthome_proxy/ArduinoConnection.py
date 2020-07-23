@@ -52,12 +52,12 @@ class HouseholdConnection(Thread):
                 data = self.arduino_ser.readline().decode("utf-8")
                 try:
                     self.decode(data)
-                    if len(config.HOUSEHOLDE_QUEUE)>0:
-                        pkg = config.HOUSEHOLDE_QUEUE.pop()
-                        self.write(pkg)
-                    pass
                 except Exception as e:
                     print ('HouseHoulde: ', e)
+            if len(config.HOUSEHOLDE_QUEUE)>0:
+                print("Sending")
+                pkg = config.HOUSEHOLDE_QUEUE.pop()
+                self.write(pkg)
 
     def write(self,message):
         self.arduino_ser.write(message)

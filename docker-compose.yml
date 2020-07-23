@@ -9,18 +9,21 @@ services:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - ./services/proxy/:/usr/src/app/
       - json_data:/usr/src/app/json_data/
+    ports:
+      - "45321:45321"
     environment:
       DOCKER: 1
     privileged: True
+    restart: always
      
   web:
     build: 
       context: ./services/web
-    command: python SmartHomeWebserver.py --dir public_html --https 8000 user:pass
     ports:
-      - "8000:8000"
+      - "8080:8080"
     volumes:
       - json_data:/usr/src/app/public_html/json_data/
+    restart: always
 
 
 volumes:
