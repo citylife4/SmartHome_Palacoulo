@@ -7,7 +7,7 @@ RUN apt-get update \
 
 RUN mkdir -p /usr/src/.ssh
 RUN openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 \
-                -keyout /usr/src/.ssh/key.pem -out /usr/src/.ssh/cert.pem \
+                -keyout /usr/src/.ssh/server.pem -out /usr/src/.ssh/server.pem \
                 -subj "/C=UK/ST=Warwickshire/L=Leamington/O=OrgName/OU=IT Department/CN=example.com"
 
 # Create app directory
