@@ -1,7 +1,17 @@
 'use strict';
 
 const express = require('express');
+const basicAuth = require('express-basic-auth')
+
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var privateKey  = fs.readFileSync('/usr/src/.ssh/server.key', 'utf8');
+var certificate = fs.readFileSync('/usr/src/.ssh/server.crt', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate};
 var net = require('net');
+
 
 // Constants
 const PORT = 8080;
@@ -9,14 +19,31 @@ const HOST = '0.0.0.0';
 
 // App
 const app = express();
-app.get('/', (req, res) => {
-  res.send('Hello World');
+var path = require('path');
+
+app.use(express.static(path.join(__dirname, "/public_html/assets")));
+
+app.use(basicAuth({
+    users: { 'admin': 'supersecret' },
+    challenge: true,
+}))
+
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname + '/public_html/index.html'));
 });
 
-app.listen(PORT, HOST);
+
+var server = https.createServer(options, app);
+
+server.listen(PORT, () => {
+  console.log("server starting on port : " + PORT)
+});
+
 console.log(`Running on http://${HOST}:${PORT}`);
 
-function send_ping() {
+// add a document to the DB collection recording the click event
+app.post('/clicked', (req, res) => {
+
     var client = new net.Socket();
     client.connect(45321, '192.168.5.15', function() {
         console.log('Connected');
@@ -27,4 +54,4 @@ function send_ping() {
         console.log('Received: ' + data);
         client.destroy(); // kill client after server's response
     });
-}
+});

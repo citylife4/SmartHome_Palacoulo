@@ -1,5 +1,15 @@
 FROM node:12
 
+RUN apt-get update \
+	&& apt-get install -y openssl \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& rm -rf /var/cache/apt/*
+
+RUN mkdir -p /usr/src/.ssh
+RUN openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 \
+                -keyout /usr/src/.ssh/key.pem -out /usr/src/.ssh/cert.pem \
+                -subj "/C=UK/ST=Warwickshire/L=Leamington/O=OrgName/OU=IT Department/CN=example.com"
+
 # Create app directory
 WORKDIR /usr/src/app
 
