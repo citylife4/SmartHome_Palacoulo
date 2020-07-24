@@ -27,9 +27,9 @@ loadJSON(function(response) {
         jsonresponse.GPIOS[len].data + " " + jsonresponse.GPIOS[len].value + "<br>";;
     }
     if (  jsonresponse.GPIOS[mlen].value == 1 ){
-        document.getElementById("opened").innerHTML = "Door is closed"
+        document.getElementById("opened").innerHTML = "Garagem está Fechada"
     } else {
-        document.getElementById("opened").innerHTML = "Door is opened"
+        document.getElementById("opened").innerHTML = "Garagem está Aberta"
     }
     document.getElementById("id01").innerHTML = text
 });

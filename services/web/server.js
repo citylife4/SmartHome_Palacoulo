@@ -12,6 +12,14 @@ var certificate = fs.readFileSync('/usr/src/.ssh/server.crt', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 var net = require('net');
 
+const options = {
+    cert: fs.readFileSync('/usr/src/.ssh/server.crt'),    
+    key: fs.readFileSync('/usr/src/.ssh/server.key'),      
+
+    //pfs: fs.readFileSync('./server/security-certificate/cert.p12'),   // didn't work
+
+    //passphrase: 'secrete'
+};
 
 // Constants
 const PORT = 8080;
@@ -32,6 +40,9 @@ app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/public_html/index.html'));
 });
 
+app.get('/json_data/data.json', function(req, res) {
+    res.sendFile(path.join(__dirname + '/public_html/json_data/data.json'));
+});
 
 var server = https.createServer(options, app);
 
