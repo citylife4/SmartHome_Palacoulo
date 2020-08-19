@@ -9,7 +9,7 @@ from threading import Thread
 from enum import Enum
 
 from datetime import datetime
-
+import pytz
 
 
 import smarthome_proxy.config as config
@@ -33,7 +33,9 @@ class HouseholdConnection(Thread):
         ]
         if not arduino_ports:
             ## TODO: check if not Debug/ CICD Mode
-            raise IOError("No Arduino found")
+            ##raise IOError("No Arduino found")
+            arduino_ports = ["/dev/ttyUSB0"]
+
         if len(arduino_ports) > 1:
             warnings.warn('Multiple Arduinos found - using the first')
 
@@ -49,8 +51,8 @@ class HouseholdConnection(Thread):
         while True:
             serial.time.sleep(0.01)
             while self.arduino_ser.in_waiting:
-                data = self.arduino_ser.readline().decode("utf-8")
                 try:
+                    data = self.arduino_ser.readline().decode("utf-8")
                     self.decode(data)
                 except Exception as e:
                     print ('HouseHoulde: ', e)
@@ -72,10 +74,12 @@ class HouseholdConnection(Thread):
         """ Should datalist be already parsed? """
 
         print(data_list)
-        now = datetime.now()
+        #TODO configurable
+        tz = pytz.timezone('Europe/Lisbon')
+        now = datetime.now(tz=tz)
         current_time = now.strftime("%d/%m/%Y %H:%M:%S")
 
-        #TODO error detection
+        #TODO error detections
         decoded_json = {
             "data" : current_time,
             "from" : data_list[0],

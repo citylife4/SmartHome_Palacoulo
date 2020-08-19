@@ -58,13 +58,18 @@ class SmartHomeProxy():
             if not config.DOCKER:
                 try:
                     cmd = input('% ')
-                    if cmd[:4] == 'quit':
+                    if cmd[:4] == 'quit' or cmd[:4] == 'exit' :
                         print("Exiting")
                         os._exit(0)
                     if cmd[0:2] == 'S ':
                         #Send to arduino Node
                         print("Sending "+ cmd[2:])
                         self.housoldconnection.write(("<"+cmd[2:]+">").encode())
+                    if cmd[0:2] == 'MD':
+                        #TODO: change to send to any arduino
+                        print("Sending MD")
+                        MB="1_1_3_0_0"
+                        self.housoldconnection.write(("<"+MB+">").encode())
                     if cmd[0:2] == 'SQ':
                         print("Server Queue: ", config.SERVER_QUEUE)
                     if cmd[0:2] == 'HQ':

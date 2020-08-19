@@ -9,7 +9,24 @@ from requests import get
 from .connection_protocol import parser
 
 IPWAITTIME = 10
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
 
+key = b'Jimmy ffffffffff'
+IV = b'1234567891234567'
+
+def do_encrypt(message):
+    iv_int = int.from_bytes(IV, byteorder='big')
+
+    new_counter = Counter.new(128, initial_value=iv_int)
+    cipher = AES.new(key, AES.MODE_CTR, counter=new_counter)
+    return cipher.encrypt(message)
+
+def do_decrypt(message):
+    iv_int = int.from_bytes(IV, byteorder='big')
+    new_counter = Counter.new(128, initial_value=iv_int)
+    cipher = AES.new(key, AES.MODE_CTR, counter=new_counter)
+    return cipher.decrypt(message)
 
 # create the connection and check if something is getting through
 class ServerConnection(Thread):
@@ -33,13 +50,14 @@ class ServerConnection(Thread):
 
     def send_message(self, message):
         logging.info('ReceiverThread: "%s"' % message)
-        self.listening_socket.sendall(message.encode('utf-8'))
+        self.listening_socket.sendall(do_encrypt(message))
 
     def run(self):
         logging.info("ReceiveThread Thread - Starting ")
         while 1:
             self.listening_socket, addr = self.connection_socket.accept()
-            rcvd_data = self.listening_socket.recv(4096).decode("utf-8")
+            rcvd_data = self.listening_socket.recv(4096)
+            rcvd_data = do_decrypt(rcvd_data)
             logging.info("ReceiveThread - Acepted: " + rcvd_data)
             if rcvd_data:
                 parser(rcvd_data, self)
@@ -47,7 +65,7 @@ class ServerConnection(Thread):
 
 
 class ClientThread(Thread):
-    def __init__(self, host="dvporto.dynip.sapo.pt", port=4662):
+    def __init__(self, host="dvalverde.ddns.net", port=54897):
         super(ClientThread, self).__init__()
         self.packet_id = "ip"
         self.check_connection = "ch_palacoulo"
@@ -65,9 +83,12 @@ class ClientThread(Thread):
                 sender_sock.connect(self.sender_server)
                 logging.debug("Connected to %s on port %s " % self.sender_server)
                 logging.debug("Sending {}".format(message))
-                sender_sock.sendall(str(message).encode('utf-8'))
-                received_data = sender_sock.recv(16).decode()
-                assert ("porto" in received_data)
+                sender_sock.sendall(do_encrypt(str(message)))
+                time.sleep(1)
+                logging.debug("bla")
+                received_data = do_decrypt(sender_sock.recv(16)).decode()
+                logging.debug("Received: {}".format(received_data))
+                #assert ("porto" in received_data)
                 logging.debug("Received: {}".format(received_data))
                 break
             except socket.error as e:
@@ -86,15 +107,15 @@ class ClientThread(Thread):
 
     def run(self):
         logging.info("Starting " + self.name)
-        if self.send_ip:
-            while 1:
-                new_address = get('https://ipapi.co/ip/').text
-                self.send_to_host(self.check_connection)
-                logging.debug("my address {}".format(self.my_address))
-                logging.debug("new address {}".format(new_address))
-                if self.my_address not in new_address or self.connection_issues:
-                    self.connection_issues = 0
-                    self.my_address = new_address
-                    to_send = "{}_{}".format(self.packet_id, new_address)
-                    self.send_to_host(to_send)
-                time.sleep(IPWAITTIME)
+        while 1:
+            new_address = "get('https://ipapi.co/ip/').text"
+            self.send_to_host(self.check_connection)
+            logging.debug("my address {}".format(self.my_address))
+            logging.debug("new address {}".format(new_address))
+            if self.my_address not in new_address or self.connection_issues:
+                self.connection_issues = 0
+                self.my_address = new_address
+                to_send = "{}_{}".format(self.packet_id, new_address)
+                self.send_to_host(to_send)
+            time.sleep(IPWAITTIME)
+

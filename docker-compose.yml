@@ -20,7 +20,7 @@ services:
     build: 
       context: ./services/web
     ports:
-      - "8080:8080"
+      - "3000:3000"
     volumes:
       - json_data:/usr/src/app/public_html/json_data/
     restart: always

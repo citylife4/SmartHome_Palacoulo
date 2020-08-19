@@ -24,7 +24,7 @@ loadJSON(function(response) {
     // Assuming json data is wrapped in square brackets as Drew suggests
     for ( len = mlen, text="" ; len >= 0; len--) { 
         text +=
-        jsonresponse.GPIOS[len].data + " " + jsonresponse.GPIOS[len].value + "<br>";;
+        jsonresponse.GPIOS[len].data + " " + jsonresponse.GPIOS[len].GPIO +" " + jsonresponse.GPIOS[len].value + "<br>";;
     }
     if (  jsonresponse.GPIOS[mlen].value == 1 ){
         document.getElementById("opened").innerHTML = "Garagem está Fechada"
