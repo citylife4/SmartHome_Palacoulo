@@ -2,5 +2,8 @@ from smarthome_proxy import SmartHomeProxy
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
-myserver = SmartHomeProxy.ClientThread()
-myserver.run()
+myclient= SmartHomeProxy.ClientThread()
+myserver = SmartHomeProxy.ServerThread()
+
+myclient.start()
+myserver.start()

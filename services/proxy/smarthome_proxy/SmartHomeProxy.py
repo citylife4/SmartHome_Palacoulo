@@ -6,7 +6,7 @@ import time
 import os
 
 from smarthome_proxy.ArduinoConnection import HouseholdConnection
-from smarthome_proxy.ServerConnection import ServerConnection
+from smarthome_proxy.ServerConnection import ServerThread
 from smarthome_proxy.ServerConnection import ClientThread
 import smarthome_proxy.config as config
 
@@ -35,7 +35,7 @@ class SmartHomeProxy():
         # Get Threads Running
         self.clientthread = ClientThread()
         self.housoldconnection = HouseholdConnection()
-        self.receiverthread = ServerConnection()
+        self.receiverthread = ServerThread()
 
         logging.info("IP check Thread")
         #clientthread.start()
