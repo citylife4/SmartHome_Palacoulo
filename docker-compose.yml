@@ -4,6 +4,7 @@ services:
   proxy:
     build:
       context: ./services/proxy
+      network: host
     command: python smarthome_proxy.py
     volumes:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
@@ -14,6 +15,7 @@ services:
     environment:
       DOCKER: 1
     privileged: True
+    network_mode: host 
     restart: always
      
   web:

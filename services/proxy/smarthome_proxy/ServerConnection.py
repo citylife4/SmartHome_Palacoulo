@@ -53,6 +53,7 @@ def open_port(port_no):
 class ServerThread(Thread):
     def __init__(self, host='', port=45321):
         super(ServerThread, self).__init__()
+        logging.debug("[ServerThread] Starting")
 
         self.address = (host, port)
         self.listening_socket = None
@@ -75,7 +76,7 @@ class ServerThread(Thread):
         self.listening_socket.sendall(do_encrypt(message))
 
     def run(self):
-        logging.info("[ServerThread] tarting ")
+        logging.info("[ServerThread] Running ")
         while 1:
             self.listening_socket, addr = self.connection_socket.accept()
             logging.info("[ServerThread] Acepted: "+ str(addr))
@@ -116,6 +117,7 @@ class ServerThread(Thread):
 class ClientThread(Thread):
     def __init__(self, host="dvalverde.ddns.net", port=54897):
         super(ClientThread, self).__init__()
+        logging.debug("[ClientThread] Starting")
         self.packet_id = "ip"
         self.check_connection = "ch_palacoulo"
         self.my_address = ""
@@ -154,7 +156,7 @@ class ClientThread(Thread):
                 time.sleep(1)
 
     def run(self):
-        logging.info("[ClientThread] Starting " + self.name)
+        logging.info("[ClientThread] Running " + self.name)
         while 1:
             new_address = "get('https://ipapi.co/ip/').text"
             self.send_to_host(self.check_connection)

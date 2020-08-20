@@ -37,16 +37,11 @@ class SmartHomeProxy():
         self.housoldconnection = HouseholdConnection()
         self.receiverthread = ServerThread()
 
-        logging.info("IP check Thread")
-        #clientthread.start()
-        # Start new Threads
-        logging.info("Receiving Thread")
+        self.clientthread.start()
         self.housoldconnection.start()
-
 
         # Just so that Ip is sent first
         time.sleep(random.randrange(2, 5))  # Sleeps for some time.
-        logging.info("Door_status check Thread")
         self.receiverthread.start()
 
         self.housoldconnection.write("<0_1_1_13_0>".encode())
