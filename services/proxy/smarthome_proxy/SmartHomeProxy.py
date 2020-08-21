@@ -4,6 +4,7 @@ import datetime
 import logging
 import time
 import os
+import errno
 
 from smarthome_proxy.ArduinoConnection import HouseholdConnection
 from smarthome_proxy.ServerConnection import ServerThread
@@ -15,20 +16,50 @@ exitFlag    = 0
 
 class SmartHomeProxy():
 
-    def __init__(self):
+    def __init__(self, logfile_path="logs/"):
     # Configure logger!
         now = datetime.datetime.now()
         #logging.basicConfig(level=logging.DEBUG, filename="logfile_" + now.strftime("%Y_%m_%d") + ".log",
         #                    filemode="a+",
         #                    format="%(asctime)-15s %(levelname)-8s %(threadName)-9s) %(message)s")
-        logging.basicConfig(level=logging.DEBUG)
-        stderrLogger = logging.StreamHandler()
-        stderrLogger.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
-        logging.getLogger().addHandler(stderrLogger)
+        #TODO: check follwoing
+        try:
+            os.makedirs(logfile_path)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+        
+
+
+        lfilename=logfile_path+"logfile_" + now.strftime("%Y_%m_%d") + ".log"
+
+        self.logger = logging.getLogger('smarthome_proxy')
+        self.logger.setLevel(logging.DEBUG)
+        # create file handler that logs debug and higher level messages
+        fh = logging.FileHandler(lfilename)
+        fh.setLevel(logging.DEBUG)
+        # create console handler with a higher log level
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+
+        formatter = logging.Formatter("[%(asctime)s] [%(levelname)8s] --- %(message)s", "%Y-%m-%d %H:%M:%S")
+        ch.setFormatter(formatter)
+        fh.setFormatter(formatter)
+    
+        # add the handlers to logger
+        self.logger.addHandler(ch)
+        self.logger.addHandler(fh)
+
+        logging.addLevelName( logging.DEBUG, "\033[1;34m%s\033[1;0m" % logging.getLevelName(logging.DEBUG))
+        logging.addLevelName( logging.INFO, "\033[1;32m%s\033[1;0m" % logging.getLevelName(logging.INFO))
+        logging.addLevelName( logging.WARNING, "\033[1;43m%s\033[1;0m" % logging.getLevelName(logging.WARNING))
+        logging.addLevelName( logging.ERROR, "\033[1;41m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
+        
+
         #logging.getLogger().addHandler(logging.StreamHandler())
 
         # Start in a thread the ip_sender
-        logging.info(socket.gethostname())
+        self.logger.info("[SmartHomeProxy] Starting on "+socket.gethostname())
         # Create condition for the socket Threbbbnnmm,ads
         # condition = threading.Condition()
 
@@ -54,20 +85,20 @@ class SmartHomeProxy():
                 try:
                     cmd = input('% ')
                     if cmd[:4] == 'quit' or cmd[:4] == 'exit' :
-                        print("Exiting")
+                        self.logger.debug("[SmartHomeProxy] Exiting")
                         os._exit(0)
                     if cmd[0:2] == 'S ':
                         #Send to arduino Node
-                        print("Sending "+ cmd[2:])
+                        self.logger.debug("[SmartHomeProxy] Sending "+ cmd[2:])
                         self.housoldconnection.write(("<"+cmd[2:]+">").encode())
                     if cmd[0:2] == 'MD':
                         #TODO: change to send to any arduino
-                        print("Sending MD")
+                        self.logger.debug("[SmartHomeProxy] Sending MD")
                         MB="1_1_3_0_0"
                         self.housoldconnection.write(("<"+MB+">").encode())
                     if cmd[0:2] == 'SQ':
-                        print("Server Queue: ", config.SERVER_QUEUE)
+                        self.logger.debug("[SmartHomeProxy] Server Queue: "+ str(config.SERVER_QUEUE))
                     if cmd[0:2] == 'HQ':
-                        print("HouseHold Queue: ", config.HOUSEHOLDE_QUEUE)
+                        self.logger.debug("[SmartHomeProxy] HouseHold Queue: "+ str(config.CLIENT_QUEUE))
                 except Exception as e:
-                    print(e)
+                    self.logger.debug(e)

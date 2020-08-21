@@ -1,5 +1,4 @@
 import os
-import logging
 import serial
 import serial.tools.list_ports
 import warnings
@@ -11,7 +10,8 @@ from enum import Enum
 from datetime import datetime
 import pytz
 
-
+import logging
+logger = logging.getLogger(__name__)
 import smarthome_proxy.config as config
 
 class CommandType(Enum):
@@ -47,7 +47,7 @@ class HouseholdConnection(Thread):
                                     timeout=1)
 
     def run(self):
-        logging.info("Starting Arduino Connection")
+        logger.info("Starting Arduino Connection")
         while True:
             serial.time.sleep(0.01)
             while self.arduino_ser.in_waiting:
@@ -55,25 +55,25 @@ class HouseholdConnection(Thread):
                     data = self.arduino_ser.readline().decode("utf-8")
                     self.decode(data)
                 except Exception as e:
-                    print ('HouseHoulde: ', e)
-            if len(config.HOUSEHOLDE_QUEUE)>0:
-                print("Sending")
-                pkg = config.HOUSEHOLDE_QUEUE.pop()
+                    logger.debug ('HouseHoulde: '+ str(e))
+            if len(config.SERVER_QUEUE)>0:
+                logger.debug("Sending")
+                pkg = config.SERVER_QUEUE.pop()
                 self.write(pkg)
 
     def write(self,message):
         self.arduino_ser.write(message)
 
     def send_message(self, message):
-        print(message)
+        logger.debug(message)
 
     def set(self, value):
         self.pong = value
 
-    def create_decoded_json(self, data_list, print_json=True):
+    def create_decoded_json(self, data_list, return_json=False, print_json=True):
         """ Should datalist be already parsed? """
 
-        print(data_list)
+        logger.debug(data_list)
         #TODO configurable
         tz = pytz.timezone('Europe/Lisbon')
         now = datetime.now(tz=tz)
@@ -84,13 +84,17 @@ class HouseholdConnection(Thread):
             "data" : current_time,
             "from" : data_list[0],
             "to" : data_list[1],
-            "command" : CommandType(data_list[2]).name,
+            "command" : CommandType(int(data_list[2])).name,
             "GPIO" : data_list[3],
             "value" : data_list[4]
         }
 
         if print_json ==True :
             self.write_json(decoded_json)
+
+        #TODO: constumizable?
+        if not return_json:
+            decoded_json = "gp_"+'_'.join(data_list)
 
         return decoded_json
 
@@ -99,7 +103,7 @@ class HouseholdConnection(Thread):
             try:
                 json_file = json.load(f)
             except Exception as e:
-                print("Exception: ", e)
+                logger.exception("Exception: "+ str(e))
                 json_file = { 'GPIOS' : []}
             json_file['GPIOS'].append(data)
         with open(filename, 'w') as f: 
@@ -113,11 +117,11 @@ class HouseholdConnection(Thread):
         #}
         try:
             data_list = list(filter(None, data.rstrip().split('_')))
-            data_list = [int(i) for i in data_list]
+            #data_list = [int(i) for i in data_list]
             json = self.create_decoded_json(data_list)
-            config.SERVER_QUEUE.append(json)
+            config.CLIENT_QUEUE.append(json)
         except Exception as e:
-            print(e)
+            logger.exception(e)
 
 
 
