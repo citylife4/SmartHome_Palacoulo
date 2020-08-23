@@ -6,15 +6,15 @@ import time
 import os
 import errno
 
-from smarthome_proxy.ArduinoConnection import HouseholdConnection
-from smarthome_proxy.ServerConnection import ServerThread
-from smarthome_proxy.ServerConnection import ClientThread
-import smarthome_proxy.config as config
+from smarthome_relay.ArduinoConnection import HouseholdConnection
+from smarthome_relay.ServerConnection import ServerThread
+from smarthome_relay.ServerConnection import ClientThread
+import smarthome_relay.config as config
 
 exitFlag    = 0
 
 
-class SmartHomeProxy():
+class SmartHomeRelay():
 
     def __init__(self, logfile_path="logs/"):
     # Configure logger!
@@ -33,7 +33,7 @@ class SmartHomeProxy():
 
         lfilename=logfile_path+"logfile_" + now.strftime("%Y_%m_%d") + ".log"
 
-        self.logger = logging.getLogger('smarthome_proxy')
+        self.logger = logging.getLogger('smarthome_relay')
         self.logger.setLevel(logging.DEBUG)
         # create file handler that logs debug and higher level messages
         fh = logging.FileHandler(lfilename)
@@ -59,7 +59,7 @@ class SmartHomeProxy():
         #logging.getLogger().addHandler(logging.StreamHandler())
 
         # Start in a thread the ip_sender
-        self.logger.info("[SmartHomeProxy] Starting on "+socket.gethostname())
+        self.logger.info("[SmartHomerelay] Starting on "+socket.gethostname())
         # Create condition for the socket Threbbbnnmm,ads
         # condition = threading.Condition()
 
@@ -85,20 +85,20 @@ class SmartHomeProxy():
                 try:
                     cmd = input('% ')
                     if cmd[:4] == 'quit' or cmd[:4] == 'exit' :
-                        self.logger.debug("[SmartHomeProxy] Exiting")
+                        self.logger.debug("[SmartHomerelay] Exiting")
                         os._exit(0)
                     if cmd[0:2] == 'S ':
                         #Send to arduino Node
-                        self.logger.debug("[SmartHomeProxy] Sending "+ cmd[2:])
+                        self.logger.debug("[SmartHomerelay] Sending "+ cmd[2:])
                         self.housoldconnection.write(("<"+cmd[2:]+">").encode())
                     if cmd[0:2] == 'MD':
                         #TODO: change to send to any arduino
-                        self.logger.debug("[SmartHomeProxy] Sending MD")
+                        self.logger.debug("[SmartHomerelay] Sending MD")
                         MB="1_1_3_0_0"
                         self.housoldconnection.write(("<"+MB+">").encode())
                     if cmd[0:2] == 'SQ':
-                        self.logger.debug("[SmartHomeProxy] Server Queue: "+ str(config.SERVER_QUEUE))
+                        self.logger.debug("[SmartHomerelay] Server Queue: "+ str(config.SERVER_QUEUE))
                     if cmd[0:2] == 'HQ':
-                        self.logger.debug("[SmartHomeProxy] HouseHold Queue: "+ str(config.CLIENT_QUEUE))
+                        self.logger.debug("[SmartHomerelay] HouseHold Queue: "+ str(config.CLIENT_QUEUE))
                 except Exception as e:
                     self.logger.debug(e)

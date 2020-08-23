@@ -10,7 +10,7 @@ from .connection_protocol import parser
 from Crypto.Util import Counter
 from Crypto.Cipher import AES
 
-import smarthome_proxy.config as config
+import smarthome_relay.config as config
 
 #TODO: Change bellow key and IV
 key = b'Jimmy ffffffffff'
@@ -126,12 +126,12 @@ class ServerThread(Thread):
 
 
 class ClientThread(Thread):
-    def __init__(self, host="dvalverde.ddns.net", port=54897, proxy_name="porto"):
+    def __init__(self, host="dvalverde.ddns.net", port=54897, relay_name="porto"):
         super(ClientThread, self).__init__()
         logger.debug("[ClientThread] Starting")
         self.packet_id = "ip"
         #TODO: Change to variable
-        self.check_connection = "connect_"+proxy_name
+        self.check_connection = "connect_"+relay_name
         self.my_address = ""
         self.host = host
         self.sender_server = (host, port)

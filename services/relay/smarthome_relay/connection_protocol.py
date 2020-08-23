@@ -1,5 +1,5 @@
 import logging
-import smarthome_proxy.config as config
+import smarthome_relay.config as config
 
 #Global Logging
 logger = logging.getLogger(__name__)

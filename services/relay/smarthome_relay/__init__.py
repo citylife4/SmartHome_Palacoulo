@@ -1,0 +1,1 @@
+from smarthome_relay import SmartHomeRelay

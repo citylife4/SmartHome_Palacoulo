@@ -12,7 +12,7 @@ import pytz
 
 import logging
 logger = logging.getLogger(__name__)
-import smarthome_proxy.config as config
+import smarthome_relay.config as config
 
 class CommandType(Enum):
     """ Received Command """

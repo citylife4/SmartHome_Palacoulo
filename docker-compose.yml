@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  proxy:
+  relay:
     build:
-      context: ./services/proxy
+      context: ./services/relay
       network: host
-    command: python smarthome_proxy.py
+    command: python smarthome_relay.py
     volumes:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
-      - ./services/proxy/:/usr/src/app/
+      - ./services/relay/:/usr/src/app/
       - json_data:/usr/src/app/json_data/
     ports:
       - "45321:45321"
